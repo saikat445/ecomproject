@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Your order amount is Rs. {{cart.total}}</h3>
+    <button id="rzp-button1">Pay</button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+    var options = {
+        "key": "rzp_test_Ufk0RO8BrKnrTI", // Enter the Key ID generated from the Dashboard
+        "amount": "{{payment.amount}}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+        "currency": "INR",
+        "name": "Ecomapp",
+        "description": "Test Transaction",
+        "image": "https://example.com/your_logo",
+        "order_id": "{{payment.id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+        "handler": function (response){
+             //window.location.href= 'http://127.0.0.1:8000/Razorpay-request/success/?razorpay_payment_id=${response.razorpay_payment_id}&razorpay_order_id{response.razorpay_order_id}&razorpay_signature{response.razorpay_signature}'
+             //alert(response.razorpay_payment_id);
+             console.log(response.razorpay_payment_id) 
+            //alert(response.razorpay_order_id);
+            console.log(response.razorpay_order_id) 
+            //alert(response.razorpay_signature)
+            console.log(response.razorpay_signature) 
+            swal({
+                    title: "Congratulation !",
+                    text: "Your Payment is Successfull",
+                }).then(function() {
+                    window.location = "http://127.0.0.1:8000/";
+                });
+
+
+        },
+        
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response){
+            console.log(response.error.code);
+            console.log(response.error.description);
+            console.log(response.error.source);
+            console.log(response.error.step);
+            console.log(response.error.reason);
+            console.log(response.error.metadata.order_id);
+            console.log(response.error.metadata.payment_id);
+            swal({
+                    title: "Sorry !",
+                    text: "Your Payment is Not Successfull, Please Try Again",
+                }).then(function() {
+                    window.location = "http://127.0.0.1:8000/my-cart/";
+                });
+    });
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+    </script> 
+</body>
+</html>
